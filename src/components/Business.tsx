@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BusinessType } from './RavenousApp';
+import { BusinessType } from '../stores/AppStore';
 
 import styled from '@emotion/styled';
 

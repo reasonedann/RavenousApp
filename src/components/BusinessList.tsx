@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Business from './Business';
-import { BusinessType } from './RavenousApp';
+import { BusinessType } from '../stores/AppStore';
+import { observer } from 'mobx-react';
 
 import styled from '@emotion/styled';
 
@@ -15,7 +16,8 @@ interface BusinessListPropsTypes {
     businesses: Array<BusinessType>
 };
 
-export default class BusinessList extends React.Component<BusinessListPropsTypes> {
+@observer
+class BusinessList extends React.Component<BusinessListPropsTypes> {
 
     render() {
         console.log('to to', this.props.businesses)
@@ -40,3 +42,5 @@ export default class BusinessList extends React.Component<BusinessListPropsTypes
         );
     }
 };
+
+export default BusinessList;
