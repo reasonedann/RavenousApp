@@ -3,30 +3,8 @@ import { observer } from 'mobx-react';
 
 import BusinessList from './BusinessList';
 import SearchBar from './SearchBar';
-import { AppStore } from '../stores/AppStore';
 
 import styled from '@emotion/styled';
-
-interface RavenousAppProps {
-    store: AppStore
-};
-
-@observer
-class RavenousApp extends React.Component<RavenousAppProps> {
-
-    render = () => {
-        const { searchYelp, businesses } = this.props.store;
-        console.log('appppppppp')
-        return (
-            <Container>
-                <SearchBar searchYelp={searchYelp} />
-                <BusinessList businesses={businesses} />
-            </Container>
-        );
-    }
-};
-
-export default RavenousApp;
 
 const Container = styled.div`
     display: flex;
@@ -36,4 +14,15 @@ const Container = styled.div`
     max-width: 1200px;
 `;
 
-
+@observer
+export class RavenousApp extends React.Component {
+    render() {
+        console.log('appppppppp')
+        return (
+            <Container>
+                <SearchBar />
+                <BusinessList />
+            </Container>
+        );
+    }
+};

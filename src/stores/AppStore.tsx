@@ -31,46 +31,58 @@ export interface BusinessType {
     reviewCount: number
 };
 
-export class AppStore {
+
+const search = async (term: string, location: string, sortBy: string): Promise<Array<BusinessType>> => {
+    const response = await fetch(`https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=${term}&location=${location}&sort_by=${sortBy}`, {
+        headers: {
+            Authorization: `Bearer ${apiKey}`
+        }
+    });
+
+    const jsonResponse = await response.json();
+
+    if (jsonResponse.businesses) {
+        return jsonResponse.businesses.map((business: YelpBusinessType) => ({
+            id: business.id,
+            imageSrc: business.image_url,
+            name: business.name,
+            address: business.location.address1,
+            city: business.location.city,
+            state: business.location.state,
+            zipCode: business.location.zip_code,
+            category: business.categories.title,
+            rating: business.rating,
+            reviewCount: business.review_count
+        }));
+    }
+
+    return [];
+};
+
+
+export class  AppStore   {
     @observable businesses: Array<BusinessType> = [];
 
-    async search(term: string, location: string, sortBy: string) {
-        try {
-            const response = await fetch(`https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=${term}&location=${location}&sort_by=${sortBy}`, {
-                headers: {
-                    Authorization: `Bearer ${apiKey}`
-                }
-            });
-            console.log('traj1')
-            const jsonResponse = await response.json();
-            console.log('traj2')
-            if (jsonResponse.businesses) {
-                return jsonResponse.businesses.map((business: YelpBusinessType) => { return {
-                    id: business.id,
-                    imageSrc: business.image_url,
-                    name: business.name,
-                    address: business.location.address1,
-                    city: business.location.city,
-                    state: business.location.state,
-                    zipCode: business.location.zip_code,
-                    category: business.categories.title,
-                    rating: business.rating,
-                    reviewCount: business.review_count
-                }})
-            }
-        } catch(error) {
-            console.log(error)
-            alert('Mission impossible. No connection.')
-        };
-    };
+    static createForContext(): AppStore {
+        return new AppStore();
+    }
 
-    searchYelp = (term: string, location: string, sortBy: string) => {
-        this.search(term, location, sortBy)
-        .then((businesses) => runInAction(() => this.businesses = businesses));
-        console.log('search yelp')
+    searchYelp = async (term: string, location: string, sortBy: string) => {
+        const businesses = await search(term, location, sortBy);
+        console.info('Nowa otrzymana odpowiedź z danymi', businesses);
+        this.businesses = businesses;
     }
 }
 
-export default React.createContext(
-    new AppStore()
-);
+const AppContext = React.createContext(AppStore.createForContext());
+
+export const Provider = AppContext.Provider;
+
+export class AppStoreComponent<PropsType = {}, StateType = {}> extends React.Component<PropsType, StateType> {
+    static contextType = AppContext;
+
+    get appState(): AppStore {
+        //Fix for "any" type
+        return this.context;
+    }
+}

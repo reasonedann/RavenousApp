@@ -3,6 +3,7 @@ import {observable} from 'mobx';
 import { observer } from 'mobx-react';
 
 import styled from '@emotion/styled';
+import { AppStoreComponent } from '../stores/AppStore';
 
 const Container = styled.div`
     display: flex;
@@ -29,11 +30,11 @@ type OptionProps = {
     active: boolean
 };
 
-const Option = styled.li`
+const Option = styled.li<OptionProps>`
     cursor: pointer;
     padding: 15px 30px;
-    background-color: ${(props: OptionProps)  => props.active ? 'orange' : 'transparent' };
-    color: ${(props: OptionProps)  => props.active ? 'black' : 'lightgray' };
+    background-color: ${props  => props.active ? 'orange' : 'transparent' };
+    color: ${props => props.active ? 'black' : 'lightgray' };
     font-weight: 700;
     font-size: 17px;
 `;
@@ -74,11 +75,8 @@ interface SearchOptionsType {
     sortBy: string,
 };
 
-interface SearchBarProps {
-    searchYelp(term: string, location: string, sortBy: string): void
-};
 @observer
-class SearchBar extends React.Component<SearchBarProps, SearchOptionsType> {
+class SearchBar extends AppStoreComponent<{}, SearchOptionsType> {
 
     sortByOptions: Map<string, string> = new Map ([
         ['best_match', 'Best Match'],
@@ -96,17 +94,17 @@ class SearchBar extends React.Component<SearchBarProps, SearchOptionsType> {
         this.SearchOptions.sortBy = sortByOption;
     };
 
-    handleTermChange = (event: any) => {
+    handleTermChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.SearchOptions.term = event.target.value;
     };
 
-    handleLocationChange = (event: any) => {
+    handleLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.SearchOptions.location = event.target.value;
     };
 
-    handleSearch = (event: any) => {
+    handleSearch = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.preventDefault();
-        this.props.searchYelp(this.SearchOptions.term, this.SearchOptions.location, this.SearchOptions.sortBy);
+        this.appState.searchYelp(this.SearchOptions.term, this.SearchOptions.location, this.SearchOptions.sortBy);
         console.log('handle search')
     }
 
@@ -117,7 +115,7 @@ class SearchBar extends React.Component<SearchBarProps, SearchOptionsType> {
                 onClick={() =>
                     {
                         this.handleSortByChange(entry[0]);
-                        this.props.searchYelp(this.SearchOptions.term, this.SearchOptions.location, this.SearchOptions.sortBy);
+                        this.appState.searchYelp(this.SearchOptions.term, this.SearchOptions.location, this.SearchOptions.sortBy);
                     }}
                 key={entry[0]}
                 >{entry[1]}
